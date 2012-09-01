@@ -28,7 +28,7 @@ private slots:
     void requestFinished(QNetworkReply *xNetworkReply);
 
 signals:
-    void newVersionAvailable(int xMajorVer, int xMinorVer, int xRevisVer, const QString &xVersionFileLink);
+    void newVersionAvailable(int xMajorVer, int xMinorVer, int xRevisVer, const QString &xDownloadLink);
     void newVersionNotAvailable();
     void errorHappened(QString xError);
 };
