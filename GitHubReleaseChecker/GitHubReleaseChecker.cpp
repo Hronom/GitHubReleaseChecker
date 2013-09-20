@@ -21,10 +21,7 @@ GitHubReleaseChecker::GitHubReleaseChecker(const QString &par_author, const QStr
 
     m_updateFileName = par_updateFileName;
 
-    m_newMajorVer = m_currentMajorVer;
-    m_newMinorVer = m_currentMinorVer;
-    m_newRevisVer = m_currentRevisVer;
-    m_downloadLink = "";
+    resetNewVersionCheck();
 
     m_networkAccessManager = new QNetworkAccessManager(this);
     connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
@@ -43,6 +40,9 @@ void GitHubReleaseChecker::checkForNewVersion()
     if(m_checkLaunched == false)
     {
         m_checkLaunched = true;
+
+        resetNewVersionCheck();
+
         QUrl checkUrl("https://api.github.com/repos/" + m_author + "/" + m_repoName + "/tags");
         QNetworkRequest networkRequest(checkUrl);
         networkRequest.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::AlwaysNetwork);
@@ -105,6 +105,18 @@ void GitHubReleaseChecker::requestFinished(QNetworkReply *par_networkReply)
             m_checked = true;
 
             emit this->checkComplete();
+
+            if(isNewVersionAvailable())
+            {
+                emit this->newVersionAvailable(m_newMajorVer,
+                                               m_newMinorVer,
+                                               m_newRevisVer,
+                                               m_downloadLink);
+            }
+            else
+            {
+                emit this->newVersionNotAvailable();
+            }
         }
     }
     else
@@ -114,6 +126,14 @@ void GitHubReleaseChecker::requestFinished(QNetworkReply *par_networkReply)
     }
 
     par_networkReply->deleteLater();
+}
+
+void GitHubReleaseChecker::resetNewVersionCheck()
+{
+    m_newMajorVer = m_currentMajorVer;
+    m_newMinorVer = m_currentMinorVer;
+    m_newRevisVer = m_currentRevisVer;
+    m_downloadLink = "";
 }
 
 void GitHubReleaseChecker::readNetworkReply(const QByteArray &par_data)

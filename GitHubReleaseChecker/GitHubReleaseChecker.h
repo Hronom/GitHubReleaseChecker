@@ -47,10 +47,13 @@ private slots:
     void requestFinished(QNetworkReply *par_networkReply);
 
 private:
+    void resetNewVersionCheck();
     void readNetworkReply(const QByteArray &par_data);
 
 signals:
     void checkComplete();
+    void newVersionAvailable(const qint32 &par_majorVer, const qint32 &par_minorVer, const qint32 &par_revisVer, const QString &par_downloadLink);
+    void newVersionNotAvailable();
 
     void errorHappens(QString par_error);
 };
