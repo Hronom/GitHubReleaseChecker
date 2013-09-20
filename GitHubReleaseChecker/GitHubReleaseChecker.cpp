@@ -81,6 +81,11 @@ qint32 GitHubReleaseChecker::getNewRevisVer()
     return m_newRevisVer;
 }
 
+QString GitHubReleaseChecker::getDownloadLink()
+{
+    return m_downloadLink;
+}
+
 void GitHubReleaseChecker::requestFinished(QNetworkReply *par_networkReply)
 {
     if(par_networkReply->error() == QNetworkReply::NoError)
@@ -130,36 +135,31 @@ void GitHubReleaseChecker::readNetworkReply(const QByteArray &par_data)
         QString tagName;
         tagName = object.value("name").toString();
 
-        QRegExp exp;
-        exp.setPattern("v[0-9]{1,}.[0-9]{1,}.[0-9]{1,}");
+        QRegExp regExp;
+        //exp.setPattern("v[0-9]{1,}.[0-9]{1,}.[0-9]{1,}"); // Old
+        regExp.setPattern("^[v]{0,1}(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$"); // New, source: http://stackoverflow.com/a/82205
 
-        if(exp.exactMatch(tagName))
+        if(regExp.exactMatch(tagName))
         {
-            if(exp.matchedLength() != -1 && exp.matchedLength() == tagName.size())
+            if(regExp.matchedLength() != -1 && regExp.matchedLength() == tagName.size())
             {
-                QString clearedTagName;
-                clearedTagName = tagName;
-                clearedTagName.remove("v");
+                qint32 newMajorVer;
+                newMajorVer = regExp.cap(1).toInt();
 
-                QStringList list;
-                list = clearedTagName.split('.');
+                qint32 newMinorVer;
+                newMinorVer = regExp.cap(2).toInt();
 
-                m_newMajorVer = list.at(0).toInt();
-                m_newMinorVer = list.at(1).toInt();
-                m_newRevisVer = list.at(2).toInt();
+                qint32 newRevisVer;
+                newRevisVer = regExp.cap(3).toInt();
 
-                if( ( m_currentMajorVer < m_newMajorVer ) ||
-                    ( m_currentMajorVer == m_newMajorVer && m_currentMinorVer < m_newMinorVer ) ||
-                    ( m_currentMajorVer == m_newMajorVer && m_currentMinorVer == m_newMinorVer && m_currentRevisVer < m_newRevisVer ) )
+                if( ( m_newMajorVer < newMajorVer ) ||
+                    ( m_newMajorVer == newMajorVer && m_newMinorVer < newMinorVer ) ||
+                    ( m_newMajorVer == newMajorVer && m_newMinorVer == newMinorVer && m_newRevisVer < newRevisVer ) )
                 {
-                    m_downloadLink = "https://github.com/" + m_author + "/" + m_repoName + "/releases/download/" + tagName + "/" + m_updateFileName;
-                    return;
-                }
-                else
-                {
-                    m_newMajorVer = m_currentMajorVer;
-                    m_newMinorVer = m_currentMinorVer;
-                    m_newRevisVer = m_currentRevisVer;
+                    m_newMajorVer = newMajorVer;
+                    m_newMinorVer = newMinorVer;
+                    m_newRevisVer = newRevisVer;
+                    m_downloadLink = "https://github.com/" + m_author + "/" + m_repoName + "/releases/download/" + tagName + "/" + m_updateFileName;   
                 }
             }
         }

@@ -40,6 +40,7 @@ public:
     qint32 getNewMajorVer();
     qint32 getNewMinorVer();
     qint32 getNewRevisVer();
+    QString getDownloadLink();
 
 
 private slots:

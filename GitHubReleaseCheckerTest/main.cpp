@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     GitHubReleaseChecker *gitHubReleaseChecker;
-    gitHubReleaseChecker = new GitHubReleaseChecker("Hronom", "GitHubReleaseChecker", 0, 0, 1, "GitHubReleaseChecker.zip");
+    gitHubReleaseChecker = new GitHubReleaseChecker("Hronom", "GitHubReleaseChecker", 0, 0, 1, "GitHubReleaseCheckerTest.zip");
 
     gitHubReleaseChecker->checkForNewVersion();
 
@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
 
     if(gitHubReleaseChecker->isNewVersionAvailable())
     {
-        qDebug()<<"New version available";
+        qDebug()<<"New version available:"<<gitHubReleaseChecker->getNewMajorVer()<<gitHubReleaseChecker->getNewMinorVer()<<gitHubReleaseChecker->getNewRevisVer();
+        qDebug()<<"New version available at link:"<<gitHubReleaseChecker->getDownloadLink();
     }
     else
     {
